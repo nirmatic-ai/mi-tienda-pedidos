@@ -1,0 +1,708 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Realizar Pedido - Tu Tienda</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.2em;
+            margin-bottom: 10px;
+        }
+        
+        .form-container {
+            padding: 30px;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s;
+            background: #fafafa;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #25D366;
+            background: white;
+            box-shadow: 0 0 0 3px rgba(37, 211, 102, 0.1);
+        }
+        
+        .products-section {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+        }
+        
+        .products-section h3 {
+            color: #25D366;
+            margin-bottom: 20px;
+            font-size: 1.4em;
+        }
+        
+        .product-item {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border: 1px solid #eee;
+        }
+        
+        .product-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .product-info h4 {
+            color: #333;
+            font-size: 1.2em;
+            margin-bottom: 5px;
+        }
+        
+        .product-info p {
+            color: #666;
+            font-size: 0.95em;
+        }
+        
+        .product-price {
+            font-weight: bold;
+            color: #25D366;
+            font-size: 1.3em;
+        }
+        
+        .quantity-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .qty-btn {
+            background: #25D366;
+            color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+            font-weight: bold;
+            transition: all 0.3s;
+        }
+        
+        .qty-btn:hover {
+            background: #128C7E;
+            transform: scale(1.1);
+        }
+        
+        .qty-input {
+            width: 80px;
+            text-align: center;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        
+        .total-section {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin: 25px 0;
+            text-align: center;
+            box-shadow: 0 8px 16px rgba(37, 211, 102, 0.3);
+        }
+        
+        .total-section h2 {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+        
+        .total-section p {
+            opacity: 0.9;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #25D366, #128C7E);
+            color: white;
+            padding: 18px 30px;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.2em;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: all 0.3s;
+            font-weight: 600;
+            box-shadow: 0 8px 16px rgba(37, 211, 102, 0.3);
+        }
+        
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 20px rgba(37, 211, 102, 0.4);
+        }
+        
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            padding: 20px;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .success-message, .error-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+        }
+        
+        .success-message {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .error-message {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        .info-section {
+            background: #e3f2fd;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+        
+        .info-section h3 {
+            color: #1976d2;
+            margin-bottom: 10px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+            
+            .header {
+                padding: 20px;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .form-container {
+                padding: 20px;
+            }
+            
+            .product-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .quantity-controls {
+                justify-content: center;
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🛍️ Realizar Pedido</h1>
+            <p>Fácil, rápido y seguro</p>
+        </div>
+        
+        <div class="form-container">
+            <div class="info-section">
+                <h3>📋 Información del Pedido</h3>
+                <p>Completa tus datos y selecciona los productos. Te contactaremos por WhatsApp para confirmar tu pedido.</p>
+            </div>
+            
+            <form id="orderForm">
+                <div class="form-group">
+                    <label>👤 Nombre completo *</label>
+                    <input type="text" id="customerName" required placeholder="Ej: María González">
+                </div>
+                
+                <div class="form-group">
+                    <label>📱 WhatsApp *</label>
+                    <input type="tel" id="customerPhone" required placeholder="Ej: +57 300 123 4567">
+                </div>
+                
+                <div class="form-group">
+                    <label>📍 Dirección de entrega</label>
+                    <textarea id="customerAddress" rows="3" placeholder="Dirección completa con referencias (opcional para productos digitales)"></textarea>
+                </div>
+                
+                <div class="products-section">
+                    <h3>🛒 Selecciona tus Productos</h3>
+                    <div id="products">
+                        <!-- Los productos se cargarán aquí -->
+                    </div>
+                </div>
+                
+                <div class="total-section">
+                    <h2>💰 Total: $<span id="totalAmount">0</span></h2>
+                    <p>Impuestos incluidos</p>
+                </div>
+                
+                <div class="form-group">
+                    <label>💳 Método de pago preferido</label>
+                    <select id="paymentMethod">
+                        <option value="mercadopago">MercadoPago (Tarjetas, PSE)</option>
+                        <option value="transferencia">Transferencia bancaria</option>
+                        <option value="efectivo">Efectivo (contra entrega)</option>
+                        <option value="nequi">Nequi/Daviplata</option>
+                    </select>
+                </div>
+                
+                <button type="button" class="submit-btn" id="submitBtn" onclick="processOrder()">
+                    📱 Enviar Pedido
+                </button>
+            </form>
+            
+            <div class="loading" id="loading">
+                <p>⏳ Procesando tu pedido...</p>
+            </div>
+            
+            <div class="success-message" id="successMessage"></div>
+            <div class="error-message" id="errorMessage"></div>
+        </div>
+    </div>
+    
+    <script>
+        // 🔧 CONFIGURACIÓN - CAMBIAR ESTOS VALORES
+        const CONFIG = {
+            GOOGLE_SCRIPT_URL: "TU_URL_DEL_SCRIPT_AQUI", // URL del Google Apps Script
+            BUSINESS_PHONE: "+573009876543", // Número de WhatsApp del negocio
+            BUSINESS_NAME: "Mi Tienda"
+        };
+        
+        // 📦 Productos disponibles (personalizar según tu negocio)
+        const PRODUCTS = [
+            {
+                id: 1,
+                name: "Producto Premium",
+                description: "Descripción detallada del producto premium",
+                price: 45000,
+                image: "🎁"
+            },
+            {
+                id: 2,
+                name: "Producto Básico", 
+                description: "Producto básico de excelente calidad",
+                price: 25000,
+                image: "📦"
+            },
+            {
+                id: 3,
+                name: "Producto Especial",
+                description: "Edición limitada con características únicas",
+                price: 65000,
+                image: "⭐"
+            },
+            {
+                id: 4,
+                name: "Pack Familiar",
+                description: "Perfecto para toda la familia, mejor precio",
+                price: 120000,
+                image: "👨‍👩‍👧‍👦"
+            }
+        ];
+        
+        // 🚀 Inicializar la aplicación
+        document.addEventListener('DOMContentLoaded', function() {
+            loadProducts();
+            updateTotal();
+        });
+        
+        // 📦 Cargar productos en la página
+        function loadProducts() {
+            const productsContainer = document.getElementById('products');
+            
+            PRODUCTS.forEach(product => {
+                const productHTML = `
+                    <div class="product-item" data-product-id="${product.id}">
+                        <div class="product-header">
+                            <div class="product-info">
+                                <h4>${product.image} ${product.name}</h4>
+                                <p>${product.description}</p>
+                            </div>
+                            <div class="product-price">${product.price.toLocaleString()}</div>
+                        </div>
+                        <div class="quantity-controls">
+                            <button type="button" class="qty-btn" onclick="changeQty(${product.id}, -1)">-</button>
+                            <input type="number" class="qty-input" id="qty_${product.id}" value="0" min="0" data-price="${product.price}" onchange="updateTotal()">
+                            <button type="button" class="qty-btn" onclick="changeQty(${product.id}, 1)">+</button>
+                        </div>
+                    </div>
+                `;
+                productsContainer.innerHTML += productHTML;
+            });
+        }
+        
+        // ➕➖ Cambiar cantidad de productos
+        function changeQty(productId, change) {
+            const input = document.getElementById(`qty_${productId}`);
+            const currentValue = parseInt(input.value) || 0;
+            const newValue = Math.max(0, currentValue + change);
+            input.value = newValue;
+            updateTotal();
+        }
+        
+        // 💰 Actualizar total
+        function updateTotal() {
+            let total = 0;
+            
+            PRODUCTS.forEach(product => {
+                const input = document.getElementById(`qty_${product.id}`);
+                const qty = parseInt(input.value) || 0;
+                total += qty * product.price;
+            });
+            
+            document.getElementById('totalAmount').textContent = total.toLocaleString();
+            
+            // Habilitar/deshabilitar botón según si hay productos
+            const submitBtn = document.getElementById('submitBtn');
+            if (total > 0) {
+                submitBtn.disabled = false;
+                submitBtn.textContent = "📱 Enviar Pedido";
+            } else {
+                submitBtn.disabled = false; // Mantener habilitado para mostrar error
+                submitBtn.textContent = "📱 Enviar Pedido";
+            }
+        }
+        
+        // 🚀 Procesar pedido
+        async function processOrder() {
+            try {
+                // Validar formulario
+                const name = document.getElementById('customerName').value.trim();
+                const phone = document.getElementById('customerPhone').value.trim();
+                const address = document.getElementById('customerAddress').value.trim();
+                const paymentMethod = document.getElementById('paymentMethod').value;
+                
+                if (!name || !phone) {
+                    showError('Por favor completa nombre y teléfono');
+                    return;
+                }
+                
+                // Recopilar productos seleccionados
+                const selectedProducts = [];
+                let total = 0;
+                
+                PRODUCTS.forEach(product => {
+                    const qty = parseInt(document.getElementById(`qty_${product.id}`).value) || 0;
+                    if (qty > 0) {
+                        selectedProducts.push({
+                            id: product.id,
+                            name: product.name,
+                            price: product.price,
+                            quantity: qty,
+                            subtotal: product.price * qty
+                        });
+                        total += product.price * qty;
+                    }
+                });
+                
+                if (selectedProducts.length === 0) {
+                    showError('Selecciona al menos un producto');
+                    return;
+                }
+                
+                // Mostrar loading
+                showLoading(true);
+                
+                // Preparar datos para enviar
+                const orderData = {
+                    customerName: name,
+                    customerPhone: phone,
+                    customerAddress: address,
+                    paymentMethod: paymentMethod,
+                    products: selectedProducts,
+                    total: total,
+                    timestamp: new Date().toISOString()
+                };
+                
+                // Enviar a Google Apps Script
+                const response = await fetch(CONFIG.GOOGLE_SCRIPT_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(orderData)
+                });
+                
+                const result = await response.json();
+                
+                if (result.status === 'success') {
+                    // Éxito - crear mensaje de WhatsApp
+                    const whatsappMessage = createWhatsAppMessage(orderData, result.orderId, result.paymentLink);
+                    
+                    // Mostrar mensaje de éxito
+                    showSuccess(`
+                        ✅ ¡Pedido procesado exitosamente!<br>
+                        📋 ID del pedido: ${result.orderId}<br><br>
+                        Se abrirá WhatsApp para enviar tu pedido.
+                    `);
+                    
+                    // Abrir WhatsApp después de un breve delay
+                    setTimeout(() => {
+                        const whatsappURL = `https://wa.me/${CONFIG.BUSINESS_PHONE.replace('+', '')}?text=${encodeURIComponent(whatsappMessage)}`;
+                        window.open(whatsappURL, '_blank');
+                    }, 2000);
+                    
+                    // Limpiar formulario
+                    resetForm();
+                    
+                } else {
+                    showError(`Error procesando pedido: ${result.message}`);
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showError('Error de conexión. Por favor intenta nuevamente.');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // 💬 Crear mensaje de WhatsApp
+        function createWhatsAppMessage(orderData, orderId, paymentLink) {
+            const productsText = orderData.products.map(p => 
+                `• ${p.name} x${p.quantity} = ${p.subtotal.toLocaleString()}`
+            ).join('\n');
+            
+            const message = `
+🛍️ *NUEVO PEDIDO - ${CONFIG.BUSINESS_NAME}*
+
+🆔 *Pedido:* ${orderId}
+👤 *Cliente:* ${orderData.customerName}
+📱 *Teléfono:* ${orderData.customerPhone}
+📍 *Dirección:* ${orderData.customerAddress || 'No especificada'}
+
+🛒 *Productos:*
+${productsText}
+
+💰 *Total:* ${orderData.total.toLocaleString()}
+💳 *Método de pago:* ${getPaymentMethodName(orderData.paymentMethod)}
+
+${paymentLink && paymentLink !== 'No configurado' ? `🔗 *Link de pago:* ${paymentLink}` : ''}
+
+⏰ ${new Date().toLocaleString()}
+
+_Pedido generado automáticamente_
+            `.trim();
+            
+            return message;
+        }
+        
+        // 💳 Obtener nombre del método de pago
+        function getPaymentMethodName(method) {
+            const methods = {
+                'mercadopago': 'MercadoPago',
+                'transferencia': 'Transferencia bancaria',
+                'efectivo': 'Efectivo contra entrega',
+                'nequi': 'Nequi/Daviplata'
+            };
+            return methods[method] || method;
+        }
+        
+        // 🔄 Resetear formulario
+        function resetForm() {
+            document.getElementById('orderForm').reset();
+            PRODUCTS.forEach(product => {
+                document.getElementById(`qty_${product.id}`).value = 0;
+            });
+            updateTotal();
+        }
+        
+        // 📱 Mostrar/ocultar loading
+        function showLoading(show) {
+            const loading = document.getElementById('loading');
+            const submitBtn = document.getElementById('submitBtn');
+            
+            if (show) {
+                loading.classList.add('show');
+                submitBtn.disabled = true;
+                submitBtn.textContent = '⏳ Procesando...';
+            } else {
+                loading.classList.remove('show');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '📱 Enviar Pedido';
+            }
+        }
+        
+        // ✅ Mostrar mensaje de éxito
+        function showSuccess(message) {
+            const successDiv = document.getElementById('successMessage');
+            const errorDiv = document.getElementById('errorMessage');
+            
+            errorDiv.style.display = 'none';
+            successDiv.innerHTML = message;
+            successDiv.style.display = 'block';
+            
+            // Auto ocultar después de 10 segundos
+            setTimeout(() => {
+                successDiv.style.display = 'none';
+            }, 10000);
+        }
+        
+        // ❌ Mostrar mensaje de error
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            
+            successDiv.style.display = 'none';
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            
+            // Auto ocultar después de 5 segundos
+            setTimeout(() => {
+                errorDiv.style.display = 'none';
+            }, 5000);
+        }
+        
+        // 📱 Formatear número de teléfono mientras se escribe
+        document.getElementById('customerPhone').addEventListener('input', function(e) {
+            let value = e.target.value.replace(/\D/g, '');
+            
+            // Si no empieza con código de país, agregar +57 (Colombia)
+            if (value.length > 0 && !value.startsWith('57') && value.length <= 10) {
+                value = '57' + value;
+            }
+            
+            // Formatear número
+            if (value.length >= 12) {
+                value = value.substring(0, 12);
+                e.target.value = `+${value.substring(0, 2)} ${value.substring(2, 5)} ${value.substring(5, 8)} ${value.substring(8)}`;
+            } else if (value.length >= 2) {
+                e.target.value = `+${value}`;
+            }
+        });
+        
+        // 🔧 Función para probar la conexión (solo para desarrollo)
+        function testConnection() {
+            console.log('🧪 Probando conexión con Google Apps Script...');
+            console.log('URL configurada:', CONFIG.GOOGLE_SCRIPT_URL);
+            
+            if (!CONFIG.GOOGLE_SCRIPT_URL || CONFIG.GOOGLE_SCRIPT_URL === 'TU_URL_DEL_SCRIPT_AQUI') {
+                console.error('❌ URL del script no configurada');
+                showError('Sistema no configurado. Contacta al administrador.');
+                return;
+            }
+            
+            // Probar con datos de ejemplo
+            const testData = {
+                customerName: 'Cliente de Prueba',
+                customerPhone: '+57 300 123 4567',
+                customerAddress: 'Dirección de prueba',
+                paymentMethod: 'efectivo',
+                products: [{
+                    id: 1,
+                    name: 'Producto de prueba',
+                    price: 10000,
+                    quantity: 1,
+                    subtotal: 10000
+                }],
+                total: 10000,
+                timestamp: new Date().toISOString()
+            };
+            
+            fetch(CONFIG.GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(testData)
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('✅ Respuesta del servidor:', data);
+                if (data.status === 'success') {
+                    showSuccess('Conexión exitosa con el servidor');
+                } else {
+                    showError('Error en el servidor: ' + data.message);
+                }
+            })
+            .catch(error => {
+                console.error('❌ Error de conexión:', error);
+                showError('Error de conexión con el servidor');
+            });
+        }
+        
+        // Agregar botón de prueba en desarrollo (comentar en producción)
+        // setTimeout(() => {
+        //     const testBtn = document.createElement('button');
+        //     testBtn.textContent = '🧪 Probar Conexión';
+        //     testBtn.style.cssText = 'position: fixed; bottom: 20px; right: 20px; z-index: 1000; padding: 10px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer;';
+        //     testBtn.onclick = testConnection;
+        //     document.body.appendChild(testBtn);
+        // }, 1000);
+    </script>
+</body>
+</html> 
